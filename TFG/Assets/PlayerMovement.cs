@@ -23,7 +23,10 @@ public class PlayerMovement : MonoBehaviour
         animator.SetFloat("Movement", horizontalMove);
         if (Input.GetButtonDown("Jump"))
         {
-            jump = true;
+                jump = true;
+                animator.SetBool("OnAir", true);
+
+            
         }
         
         if (Input.GetButtonDown("Crouch"))
@@ -38,11 +41,17 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void OnLanding()
+    {
+        animator.SetBool("OnAir", false);
+    }
+
     private void FixedUpdate()
     {
         //Move our character
 
         controller.Move(horizontalMove * Time.fixedDeltaTime,crouch,jump);
         jump = false;
+      
     }
 }
