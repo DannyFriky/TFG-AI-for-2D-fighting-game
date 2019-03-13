@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     float horizontalMove = 0f;
     bool crouch = false;
     bool jump = false;
+    bool atack = false;
 
     // Update is called once per frame
     void Update()
@@ -27,6 +28,14 @@ public class PlayerMovement : MonoBehaviour
                 animator.SetBool("OnAir", true);
 
             
+        }
+
+        if (Input.GetButtonDown("Atack"))
+        {
+
+            animator.SetTrigger("Atack");
+
+  
         }
         
         if (Input.GetButtonDown("Crouch"))
@@ -46,11 +55,21 @@ public class PlayerMovement : MonoBehaviour
         animator.SetBool("OnAir", false);
     }
 
+    public void StartAtack()
+    {
+        atack = true;
+    }
+
+    public void EndAtack()
+    {
+        atack = false;
+    }
+
     private void FixedUpdate()
     {
         //Move our character
 
-        controller.Move(horizontalMove * Time.fixedDeltaTime,crouch,jump);
+        controller.Move(horizontalMove * Time.fixedDeltaTime,crouch,jump,atack);
         jump = false;
       
     }

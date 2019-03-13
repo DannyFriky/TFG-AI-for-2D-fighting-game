@@ -4,13 +4,14 @@ using UnityEngine.Events;
 public class CharacterController2D : MonoBehaviour
 {
 	[SerializeField] private float m_JumpForce = 400f;							// Amount of force added when the player jumps.
-	[Range(0, 1)] [SerializeField] private float m_CrouchSpeed = .36f;			// Amount of maxSpeed applied to crouching movement. 1 = 100%
-	[Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;	// How much to smooth out the movement
+	[Range(0, 1)] [SerializeField] private float m_CrouchSpeed = .36f;          // Amount of maxSpeed applied to crouching movement. 1 = 100%
+    [Range(0, 1)] [SerializeField] private float m_AtackMSpeed = .36f;          // Amount of maxSpeed applied to atacking movement. 1 = 100%
+    [Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;	// How much to smooth out the movement
 	[SerializeField] private bool m_AirControl = false;							// Whether or not a player can steer while jumping;
-	[SerializeField] private LayerMask m_WhatIsGround;							// A mask determining what is ground to the character
-	[SerializeField] private Transform m_GroundCheck;							// A position marking where to check if the player is grounded.
-	[SerializeField] private Transform m_CeilingCheck;							// A position marking where to check for ceilings
-	[SerializeField] private Collider2D m_CrouchDisableCollider;				// A collider that will be disabled when crouching
+	[SerializeField] private LayerMask m_WhatIsGround = 0;							// A mask determining what is ground to the character
+	[SerializeField] private Transform m_GroundCheck = null;							// A position marking where to check if the player is grounded.
+	[SerializeField] private Transform m_CeilingCheck = null;							// A position marking where to check for ceilings
+	[SerializeField] private Collider2D m_CrouchDisableCollider = null;				// A collider that will be disabled when crouching
 
 	const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
 	private bool m_Grounded;            // Whether or not the player is grounded.
@@ -61,7 +62,7 @@ public class CharacterController2D : MonoBehaviour
 	}
 
 
-	public void Move(float move, bool crouch, bool jump)
+	public void Move(float move, bool crouch, bool jump, bool atack)
 	{
 		// If crouching, check to see if the character can stand up
 		if (!crouch)
@@ -77,6 +78,8 @@ public class CharacterController2D : MonoBehaviour
 		if (m_Grounded || m_AirControl)
 		{
 
+
+         
 			// If crouching
 			if (crouch)
 			{
@@ -105,8 +108,14 @@ public class CharacterController2D : MonoBehaviour
 				}
 			}
 
-			// Move the character by finding the target velocity
-			Vector3 targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
+            if (atack)
+            {
+                // Reduce the speed by the atackMSpeed multiplier
+                move *= m_AtackMSpeed;
+
+            }
+            // Move the character by finding the target velocity
+            Vector3 targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
 			// And then smoothing it out and applying it to the character
 			m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
             /*
