@@ -8,11 +8,22 @@ public class HitCollider : MonoBehaviour
     public float damage;
 
     public Player owner;
-
-    private void OnTriggerEnter(Collider other)
+        private void Update()
     {
+    
+
+    }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+   
         Player somebody = other.gameObject.GetComponent<Player>();
 
-        Debug.Log("Que te pego");
+        if (somebody != null && somebody != owner)
+        {
+            somebody.DamageReceived(damage);
+
+        }
     }
+
+
 }

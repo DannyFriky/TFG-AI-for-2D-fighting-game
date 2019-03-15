@@ -7,7 +7,7 @@ public class Player : MonoBehaviour
     public enum PlayerType
     {
 
-        HUMAN, AI
+        HUMAN, AI, HUMAN2
 
     };
 
@@ -85,14 +85,65 @@ public class Player : MonoBehaviour
         }
 
     }
+
+    public void UpdateHuman2Input()
+    {
+        horizontalMove = Input.GetAxisRaw("Horizontal2") * runSpeed;
+        animator.SetFloat("Movement", horizontalMove);
+
+        if (horizontalMove < -0.1)
+        {
+            animator.SetBool("Walk_Forward", true);
+        }
+        else
+        {
+            animator.SetBool("Walk_Forward", false);
+
+        }
+        if (horizontalMove > 0.1)
+        {
+            animator.SetBool("Walk_Backwards", true);
+        }
+        else
+        {
+            animator.SetBool("Walk_Backwards", false);
+
+        }
+        if (Input.GetButtonDown("Jump2"))
+        {
+            jump = true;
+            animator.SetBool("OnAir", true);
+        }
+
+        if (Input.GetButtonDown("Crouch2"))
+        {
+            crouch = true;
+            animator.SetBool("Is_Crouching", true);
+        }
+        else if (Input.GetButtonUp("Crouch2"))
+        {
+            crouch = false;
+            animator.SetBool("Is_Crouching", false);
+        }
+        if (Input.GetButtonDown("Atack2"))
+        {
+            animator.SetTrigger("Atack");
+        }
+        if (Input.GetButtonDown("SpecialAtack2"))
+        {
+            animator.SetTrigger("Special_Atack");
+        }
+
+    }
+
     void Update()
     {
 
-        animator.SetFloat("Health", healthPercent);
+        animator.SetFloat("Health", HealthPercent);
 
         if (oponent != null)
         {
-            animator.SetFloat("Oponent_Health", oponent.healthPercent);
+            animator.SetFloat("Oponent_Health", oponent.HealthPercent);
         } else
         {
             animator.SetFloat("Oponent_Health", 1);
@@ -103,7 +154,10 @@ public class Player : MonoBehaviour
         {
             UpdateHumanInput();
         }
-        
+        if (player == PlayerType.HUMAN2)
+        {
+            UpdateHuman2Input();
+        }
     }
 
     public void OnLanding()
@@ -115,12 +169,26 @@ public class Player : MonoBehaviour
     {
         atack = true;
     }
-
     public void EndAtack()
     {
         atack = false;
     }
-    public float healthPercent
+
+    public void DamageReceived(float damage)
+    {
+        if (health >= damage)
+        {
+            health -= damage;
+        }
+        else
+        {
+            health = 0;
+        }
+
+
+    }
+
+    public float HealthPercent
     {
         get
         {
@@ -135,8 +203,14 @@ public class Player : MonoBehaviour
             controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump, atack);
             jump = false;
         }
+
+        if (player == PlayerType.HUMAN2)
+        {
+            controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump, atack);
+            jump = false;
+        }
     }
-    public Rigidbody2D body
+    public Rigidbody2D Body
     {
         get
         {
