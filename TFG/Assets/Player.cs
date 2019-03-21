@@ -20,7 +20,8 @@ public class Player : MonoBehaviour
     public string playerName;
     public Player oponent;
     public PlayerType player;
-
+    public EnergySphere sphere;
+    public SpriteRenderer spriteRendered;
     private Rigidbody2D myBody;
 
     public float runSpeed = 40f;
@@ -138,7 +139,6 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-
         animator.SetFloat("Health", HealthPercent);
 
         if (oponent != null)
@@ -168,10 +168,32 @@ public class Player : MonoBehaviour
     public void StartAtack()
     {
         atack = true;
+        
+
     }
     public void EndAtack()
     {
         atack = false;
+    }
+
+    public void ThrowSphere()
+    {
+        Vector3 SphereInitialPosition;
+
+        if (spriteRendered.flipX == false)
+        {
+            SphereInitialPosition = new Vector3(this.transform.position.x -1, this.transform.position.y, 0);
+        }
+        else
+        {
+            SphereInitialPosition = new Vector3(this.transform.position.x , this.transform.position.y, 0);
+   
+        }
+        EnergySphere clone = EnergySphere.Instantiate(
+            sphere,
+            SphereInitialPosition,
+            Quaternion.Euler(0,0,0));
+        clone.caster = this;
     }
 
     public void DamageReceived(float damage)
@@ -187,6 +209,7 @@ public class Player : MonoBehaviour
 
 
     }
+
 
     public float HealthPercent
     {
