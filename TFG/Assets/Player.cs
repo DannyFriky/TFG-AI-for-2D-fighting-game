@@ -6,17 +6,17 @@ public class Player : MonoBehaviour
 {
     public enum PlayerType
     {
-
         HUMAN, AI, HUMAN2
-
     };
 
 
     public static float MAX_HEALTH = 100f;
+    public static float MAX_ENERGY = 300f;
 
     public CharacterController2D controller;
     public Animator animator;
     public float health = MAX_HEALTH;
+    public float energy = 0;
     public string playerName;
     public Player oponent;
     public PlayerType player;
@@ -82,7 +82,11 @@ public class Player : MonoBehaviour
         }
         if (Input.GetButtonDown("SpecialAtack"))
         {
-            animator.SetTrigger("Special_Atack");
+            if (energy >= 100)
+            {
+                animator.SetTrigger("Special_Atack");
+                energy -= 100;
+            }
         }
 
     }
@@ -132,7 +136,10 @@ public class Player : MonoBehaviour
         }
         if (Input.GetButtonDown("SpecialAtack2"))
         {
-            animator.SetTrigger("Special_Atack");
+            if (energy >= 100){
+                animator.SetTrigger("Special_Atack");
+                energy -= 100;
+            }
         }
 
     }
@@ -198,6 +205,7 @@ public class Player : MonoBehaviour
 
     public void DamageReceived(float damage)
     {
+        this.UpdateEnergy(35);
         if (health >= damage)
         {
             health -= damage;
@@ -210,6 +218,18 @@ public class Player : MonoBehaviour
 
     }
 
+    public void UpdateEnergy(float enAmount)
+    {
+        if(energy+enAmount <= MAX_ENERGY)
+        {
+            energy += enAmount;
+        }
+        else
+        {
+            energy = 300;
+        }
+    }
+
 
     public float HealthPercent
     {
@@ -218,6 +238,15 @@ public class Player : MonoBehaviour
             return health / MAX_HEALTH;
         }
     }
+
+    public float EnergyPercent
+    {
+        get
+        {
+            return energy / MAX_ENERGY;
+        }
+    }
+
     private void FixedUpdate()
     {
         //Move our character

@@ -43,4 +43,14 @@ public class EnergySphere : MonoBehaviour
         }
         
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Player player = collision.gameObject.GetComponent<Player>();
+        if (player != null && player != caster){
+            player.DamageReceived(damage);
+            Destroy(gameObject);
+
+        }
+    }
 }
