@@ -21,6 +21,7 @@ public class HitCollider : MonoBehaviour
         if (somebody != null && somebody != owner)
         {
             somebody.DamageReceived(damage);
+            owner.UpdateEnergy(15);
 
         }
     }

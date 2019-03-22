@@ -50,6 +50,7 @@ public class EnergySphere : MonoBehaviour
         if (player != null && player != caster){
             player.DamageReceived(damage);
             Destroy(gameObject);
+            caster.UpdateEnergy(15);
 
         }
     }

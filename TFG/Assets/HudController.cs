@@ -19,19 +19,23 @@ public class HudController : MonoBehaviour
 
     public TextMeshProUGUI tagp1;
     public TextMeshProUGUI tagp2;
+    public TextMeshProUGUI timertag;
 
+    public BattleController battle;
 
     // Start is called before the first frame update
     void Start()
     {
         tagp1.text = player1.playerName;
         tagp2.text = player2.playerName;
+        timertag.text = battle.timeLeft.ToString();
 
     }
 
     // Update is called once per frame
     void Update()
     {
+        timertag.text = battle.timeLeft.ToString();
 
         healthp1.fillAmount = player1.HealthPercent;
 

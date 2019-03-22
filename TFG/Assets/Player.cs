@@ -209,10 +209,15 @@ public class Player : MonoBehaviour
         if (health >= damage)
         {
             health -= damage;
+            if (health == 0) {
+                animator.SetTrigger("Death");
+            }
+
         }
         else
         {
             health = 0;
+            animator.SetTrigger("Death");
         }
 
 
@@ -244,6 +249,19 @@ public class Player : MonoBehaviour
         get
         {
             return energy / MAX_ENERGY;
+        }
+    }
+
+    public void FlipSprite(int state) //0 normal 1 inverse
+    {
+        if (state == 0 )
+        {
+            this.transform.rotation = Quaternion.Euler(0,0,0);
+        }
+        else
+        {
+            this.transform.rotation = Quaternion.Euler(0, 180, 0);
+
         }
     }
 
