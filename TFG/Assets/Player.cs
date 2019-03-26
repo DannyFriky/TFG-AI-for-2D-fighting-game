@@ -12,11 +12,14 @@ public class Player : MonoBehaviour
 
     public static float MAX_HEALTH = 100f;
     public static float MAX_ENERGY = 300f;
+    public static float MAX_SHIELD = 100f;
 
     public CharacterController2D controller;
     public Animator animator;
     public float health = MAX_HEALTH;
     public float energy = 0;
+    public float shield = MAX_SHIELD;
+    public int timesKill = 0;
     public string playerName;
     public Player oponent;
     public PlayerType player;
@@ -30,11 +33,17 @@ public class Player : MonoBehaviour
     bool crouch = false;
     bool jump = false;
     bool atack = false;
+    bool lookFoward = true;
+    bool defending = false;
+    bool dead = false;
+
+    Vector3 initialPosition;
 
     private void Start()
     {
         myBody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        initialPosition = this.transform.position;
     }
 
     public void UpdateHumanInput ()
@@ -42,8 +51,10 @@ public class Player : MonoBehaviour
         horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;   
         animator.SetFloat("Movement", horizontalMove);
 
-        if (horizontalMove > 0.1)
+        if ((horizontalMove > 0.1 && lookFoward == true) || (horizontalMove < -0.1 && lookFoward == false))
         {
+            
+            
             animator.SetBool("Walk_Forward", true);
         }
         else
@@ -51,7 +62,7 @@ public class Player : MonoBehaviour
             animator.SetBool("Walk_Forward", false);
 
         }
-        if (horizontalMove < -0.1)
+        if ((horizontalMove < -0.1 && lookFoward == true) || (horizontalMove > 0.1 && lookFoward == false))
         {
             animator.SetBool("Walk_Backwards", true);
         }
@@ -70,11 +81,20 @@ public class Player : MonoBehaviour
         {
             crouch = true;
             animator.SetBool("Is_Crouching", true);
+            if (shield > 0)
+            {
+                defending = true;
+                animator.SetBool("Defending", true);
+
+            }
         }
         else if (Input.GetButtonUp("Crouch"))
         {
             crouch = false;
             animator.SetBool("Is_Crouching", false);
+            defending = false;
+            animator.SetBool("Defending", false);
+
         }
         if (Input.GetButtonDown("Atack"))
         {
@@ -89,14 +109,14 @@ public class Player : MonoBehaviour
             }
         }
 
-    }
+    } 
 
     public void UpdateHuman2Input()
     {
         horizontalMove = Input.GetAxisRaw("Horizontal2") * runSpeed;
         animator.SetFloat("Movement", horizontalMove);
 
-        if (horizontalMove < -0.1)
+        if ((horizontalMove < -0.1 && lookFoward == true) || (horizontalMove > 0.1 && lookFoward == false))
         {
             animator.SetBool("Walk_Forward", true);
         }
@@ -105,7 +125,7 @@ public class Player : MonoBehaviour
             animator.SetBool("Walk_Forward", false);
 
         }
-        if (horizontalMove > 0.1)
+        if ((horizontalMove > 0.1 && lookFoward == true) || (horizontalMove < -0.1 && lookFoward == false))
         {
             animator.SetBool("Walk_Backwards", true);
         }
@@ -124,11 +144,20 @@ public class Player : MonoBehaviour
         {
             crouch = true;
             animator.SetBool("Is_Crouching", true);
+            if (shield > 0)
+            {
+                defending = true;
+                animator.SetBool("Defending", true);
+
+            }
         }
         else if (Input.GetButtonUp("Crouch2"))
         {
             crouch = false;
             animator.SetBool("Is_Crouching", false);
+            defending = false;
+            animator.SetBool("Defending", false);
+
         }
         if (Input.GetButtonDown("Atack2"))
         {
@@ -156,14 +185,16 @@ public class Player : MonoBehaviour
             animator.SetFloat("Oponent_Health", 1);
         }
 
-
-     if (player == PlayerType.HUMAN)
+        if (dead == false)
         {
-            UpdateHumanInput();
-        }
-        if (player == PlayerType.HUMAN2)
-        {
-            UpdateHuman2Input();
+            if (player == PlayerType.HUMAN)
+            {
+                UpdateHumanInput();
+            }
+            if (player == PlayerType.HUMAN2)
+            {
+                UpdateHuman2Input();
+            }
         }
     }
 
@@ -205,22 +236,54 @@ public class Player : MonoBehaviour
 
     public void DamageReceived(float damage)
     {
-        this.UpdateEnergy(35);
-        if (health >= damage)
+        if (dead == false)
         {
-            health -= damage;
-            if (health == 0) {
-                animator.SetTrigger("Death");
+            this.UpdateEnergy(35);
+            if (defending == true && shield > 0)
+            {
+                if (shield >= damage)
+                {
+                    shield -= damage;
+                    if (shield == 0)
+                    {
+                        animator.SetBool("Defending", false);
+                    }
+                }
+                else
+                {
+                    health = health - (damage - shield);
+                    shield = 0;
+                    animator.SetBool("Defending", false);
+
+                }
+            }
+            else
+            {
+                if (health >= damage)
+                {
+                    health -= damage;
+                    if (health == 0)
+                    {
+                        //oponent.GetKill();
+                        animator.SetTrigger("Death");
+                        dead = true;
+                        this.transform.position = new Vector3(10, 13, 0);
+                    }
+
+                }
+                else
+                {
+                    health = 0;
+                   // oponent.GetKill();
+                    animator.SetTrigger("Death");
+                    dead = true;
+                    this.transform.position = new Vector3(10, 13, 0);
+
+                }
             }
 
-        }
-        else
-        {
-            health = 0;
-            animator.SetTrigger("Death");
-        }
 
-
+        }
     }
 
     public void UpdateEnergy(float enAmount)
@@ -252,16 +315,25 @@ public class Player : MonoBehaviour
         }
     }
 
+    public float ShieldPercent
+    {
+        get
+        {
+            return shield / MAX_SHIELD;
+        }
+    }
+
     public void FlipSprite(int state) //0 normal 1 inverse
     {
         if (state == 0 )
         {
             this.transform.rotation = Quaternion.Euler(0,0,0);
+            lookFoward = true;
         }
         else
         {
             this.transform.rotation = Quaternion.Euler(0, 180, 0);
-
+            lookFoward = false;
         }
     }
 
@@ -286,5 +358,27 @@ public class Player : MonoBehaviour
         {
             return this.myBody;
         }
+    }
+
+    public void GetKill()
+    {
+        timesKill++;
+    }
+
+    public void Restart()
+    {
+        this.transform.position = initialPosition;
+        health = MAX_HEALTH;
+        energy = 0;
+        shield = MAX_SHIELD;
+        horizontalMove = 0f;
+        crouch = false;
+        jump = false;
+        atack = false;
+        lookFoward = true;
+        defending = false;
+        dead = false;
+        animator.SetTrigger("Spawn");
+
     }
 }

@@ -13,7 +13,7 @@ public class BattleController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+       
     }
 
     // Update is called once per frame
@@ -39,5 +39,33 @@ public class BattleController : MonoBehaviour
             player1.FlipSprite(0);
             player2.FlipSprite(0);
         }
+
+        //Will restar the battle forever until training its done
+        if(timeLeft == 0 || player1.HealthPercent == 0 || player2.HealthPercent == 0)
+        {
+           
+            RestartGame();
+        }
+    }
+
+    private void RestartGame()
+    {
+       
+
+        //yield return new WaitForSeconds(0);
+        if (player1.HealthPercent > player2.HealthPercent)
+        {
+            player1.GetKill();
+        }
+
+        if (player1.HealthPercent < player2.HealthPercent)
+        {
+            player2.GetKill();
+        }
+        timeLeft = MAX_TIME;
+        player1.Restart();
+        player2.Restart();
+        
+
     }
 }
