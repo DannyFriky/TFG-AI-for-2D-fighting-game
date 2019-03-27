@@ -26,6 +26,18 @@ public class Player : MonoBehaviour
     public EnergySphere sphere;
     public SpriteRenderer spriteRendered;
     private Rigidbody2D myBody;
+    private AudioSource audioPlayer;
+    public AudioClip atack1s;
+    public AudioClip atack2s;
+    public AudioClip atack3s;
+    public AudioClip specials;
+    public AudioClip dmghits;
+    public AudioClip shieldhits;
+    public AudioClip shieldbreaks;
+    public AudioClip jumps;
+
+
+
 
     public float runSpeed = 40f;
 
@@ -44,6 +56,7 @@ public class Player : MonoBehaviour
         myBody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         initialPosition = this.transform.position;
+        audioPlayer = GetComponent<AudioSource>();
     }
 
     public void UpdateHumanInput ()
@@ -241,12 +254,16 @@ public class Player : MonoBehaviour
             this.UpdateEnergy(35);
             if (defending == true && shield > 0)
             {
+                GameUtils.PlaySound(shieldhits, audioPlayer);
+
                 if (shield >= damage)
                 {
                     shield -= damage;
                     if (shield == 0)
                     {
                         animator.SetBool("Defending", false);
+                        GameUtils.PlaySound(shieldbreaks, audioPlayer);
+
                     }
                 }
                 else
@@ -254,14 +271,18 @@ public class Player : MonoBehaviour
                     health = health - (damage - shield);
                     shield = 0;
                     animator.SetBool("Defending", false);
+                    GameUtils.PlaySound(shieldbreaks, audioPlayer);
 
                 }
             }
             else
             {
+                GameUtils.PlaySound(dmghits, audioPlayer);
+
                 if (health >= damage)
                 {
                     health -= damage;
+
                     if (health == 0)
                     {
                         //oponent.GetKill();
@@ -274,7 +295,8 @@ public class Player : MonoBehaviour
                 else
                 {
                     health = 0;
-                   // oponent.GetKill();
+                    // oponent.GetKill();
+
                     animator.SetTrigger("Death");
                     dead = true;
                     this.transform.position = new Vector3(10, 13, 0);
@@ -336,6 +358,35 @@ public class Player : MonoBehaviour
             lookFoward = false;
         }
     }
+
+    public void Atack1Sound()
+    {
+        GameUtils.PlaySound(atack1s, audioPlayer);
+
+    }
+    public void Atack2Sound()
+    {
+        GameUtils.PlaySound(atack2s, audioPlayer);
+
+    }
+    public void Atack3Sound()
+    {
+        GameUtils.PlaySound(atack3s, audioPlayer);
+
+    }
+
+    public void SpecialSound()
+    {
+        GameUtils.PlaySound(specials, audioPlayer);
+
+    }
+
+    public void JumpSound()
+    {
+        GameUtils.PlaySound(jumps, audioPlayer);
+
+    }
+
 
     private void FixedUpdate()
     {
