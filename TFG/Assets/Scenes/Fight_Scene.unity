@@ -326,7 +326,7 @@ GameObject:
   - component: {fileID: 64598531}
   m_Layer: 8
   m_Name: Player 1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -352,6 +352,7 @@ MonoBehaviour:
   playerName: 'Yaterami '
   oponent: {fileID: 612523189}
   player: 0
+  lastAction: 0
   sphere: {fileID: 8953172314007636880, guid: 3ec3d4e10e01c8d43b42eb26efef3d32, type: 3}
   spriteRendered: {fileID: 64598529}
   atack1s: {fileID: 8300000, guid: f3abc65e1e59e3b468b89efdea68244a, type: 3}
@@ -362,7 +363,27 @@ MonoBehaviour:
   shieldhits: {fileID: 8300000, guid: d95a6f90f0563454180b3bd59c2f4faa, type: 3}
   shieldbreaks: {fileID: 8300000, guid: 0f47289fef3372a41b4ed87f829f5c8e, type: 3}
   jumps: {fileID: 8300000, guid: 02981d1f2ba873b468dcd08522e34ced, type: 3}
+  throwForward: 0
+  currentAction:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   runSpeed: 40
+  horizontalMove: 0
+  crouch: 0
+  jump: 0
+  atack: 0
+  lookFoward: 1
+  defending: 0
+  dead: 0
+  onLand: 1
+  startAtack: 0
 --- !u!70 &64598524
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -1935,7 +1956,8 @@ GameObject:
   - component: {fileID: 612523186}
   - component: {fileID: 612523187}
   - component: {fileID: 612523190}
-  m_Layer: 8
+  - component: {fileID: 612523191}
+  m_Layer: 9
   m_Name: Player 2 (IA)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2172,6 +2194,7 @@ MonoBehaviour:
   playerName: Yaterami
   oponent: {fileID: 64598523}
   player: 2
+  lastAction: 0
   sphere: {fileID: 14347953894950120, guid: d874833aaf1c04d48b35dd117bdad835, type: 3}
   spriteRendered: {fileID: 612523183}
   atack1s: {fileID: 8300000, guid: f3abc65e1e59e3b468b89efdea68244a, type: 3}
@@ -2182,7 +2205,27 @@ MonoBehaviour:
   shieldhits: {fileID: 8300000, guid: d95a6f90f0563454180b3bd59c2f4faa, type: 3}
   shieldbreaks: {fileID: 8300000, guid: 0f47289fef3372a41b4ed87f829f5c8e, type: 3}
   jumps: {fileID: 8300000, guid: 02981d1f2ba873b468dcd08522e34ced, type: 3}
+  throwForward: 0
+  currentAction:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   runSpeed: 40
+  horizontalMove: 0
+  crouch: 0
+  jump: 0
+  atack: 0
+  lookFoward: 1
+  defending: 0
+  dead: 0
+  onLand: 1
+  startAtack: 0
 --- !u!82 &612523190
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2279,6 +2322,28 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &612523191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 612523181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed2d6eae5951fbc4f9c94896af2a72cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  brain: {fileID: 11400000, guid: 099236fe3aa9db54a841194ad748727d, type: 2}
+  agentParameters:
+    agentCameras: []
+    maxStep: 0
+    resetOnDone: 1
+    onDemandDecision: 0
+    numberOfActionsBetweenDecisions: 1
+  battle: {fileID: 1117285533}
+  character: {fileID: 612523189}
+  animator: {fileID: 612523182}
 --- !u!1 &668655517
 GameObject:
   m_ObjectHideFlags: 0
@@ -2584,7 +2649,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_text: 99
+  m_text: 00
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
@@ -3236,7 +3301,7 @@ MonoBehaviour:
   posRel: {x: 0, y: 0, z: 0}
   musicPlayer: {fileID: 519420030}
   backgroundMusic: {fileID: 8300000, guid: e5567ee899410be42b105c737e162b00, type: 3}
-  banner: {fileID: 0}
+  banner: {fileID: 14686982}
 --- !u!4 &1117285534
 Transform:
   m_ObjectHideFlags: 0
@@ -3435,9 +3500,9 @@ GameObject:
   - component: {fileID: 1186437298}
   - component: {fileID: 1186437297}
   - component: {fileID: 1186437296}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Wall 2
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3851,7 +3916,7 @@ GameObject:
   - component: {fileID: 1225703221}
   - component: {fileID: 1225703223}
   - component: {fileID: 1225703222}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: Atack1HitCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4224,6 +4289,69 @@ RectTransform:
   m_AnchoredPosition: {x: -25.3, y: 0}
   m_SizeDelta: {x: 10, y: 12}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1302398827
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1302398829}
+  - component: {fileID: 1302398828}
+  m_Layer: 0
+  m_Name: Academy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1302398828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1302398827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5138fb0bbf767f4ea7de6cd756efc19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  broadcastHub:
+    broadcastingBrains:
+    - {fileID: 11400000, guid: 7b2677f94972f874bb58e5ef5fc98b5c, type: 2}
+    - {fileID: 11400000, guid: 099236fe3aa9db54a841194ad748727d, type: 2}
+    _brainsToControl: []
+  maxSteps: 0
+  trainingConfiguration:
+    width: 80
+    height: 80
+    qualityLevel: 5
+    timeScale: 100
+    targetFrameRate: -1
+  inferenceConfiguration:
+    width: 1280
+    height: 720
+    qualityLevel: 5
+    timeScale: 1
+    targetFrameRate: 60
+  resetParameters:
+    resetParameters: []
+--- !u!4 &1302398829
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1302398827}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 10.0359335, y: 5.5652785, z: -0.53565836}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 11
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1311064098
 GameObject:
   m_ObjectHideFlags: 0
@@ -4307,7 +4435,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1322649449}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: CeilingCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4967,7 +5095,7 @@ GameObject:
   - component: {fileID: 1845260394}
   - component: {fileID: 1845260396}
   - component: {fileID: 1845260395}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: Atack3HitCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5144,9 +5272,9 @@ GameObject:
   - component: {fileID: 1908550496}
   - component: {fileID: 1908550495}
   - component: {fileID: 1908550494}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Wall 1
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5250,7 +5378,7 @@ GameObject:
   - component: {fileID: 1918891998}
   - component: {fileID: 1918892000}
   - component: {fileID: 1918891999}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: Atack2HitCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5348,7 +5476,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1973044302}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}

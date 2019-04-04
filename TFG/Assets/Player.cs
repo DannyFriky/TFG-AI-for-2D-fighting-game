@@ -9,6 +9,21 @@ public class Player : MonoBehaviour
         HUMAN, AI, HUMAN2
     };
 
+    public enum LastAction
+    {
+        WFORWARD,
+        WBACKWARDS,
+        JUMP,
+        CROUCH,
+        DEFEND,
+        ATACK,
+        SATACK,
+        DIE,
+        RESPAWN,
+        NUMACTIONS
+    };
+
+
 
     public static float MAX_HEALTH = 100f;
     public static float MAX_ENERGY = 300f;
@@ -23,6 +38,7 @@ public class Player : MonoBehaviour
     public string playerName;
     public Player oponent;
     public PlayerType player;
+    public LastAction lastAction;
     public EnergySphere sphere;
     public SpriteRenderer spriteRendered;
     private Rigidbody2D myBody;
@@ -35,19 +51,23 @@ public class Player : MonoBehaviour
     public AudioClip shieldhits;
     public AudioClip shieldbreaks;
     public AudioClip jumps;
+    public bool throwForward;
+    public float[] currentAction = new float[(int)LastAction.NUMACTIONS];
 
 
 
 
     public float runSpeed = 40f;
 
-    float horizontalMove = 0f;
-    bool crouch = false;
-    bool jump = false;
-    bool atack = false;
-    bool lookFoward = true;
-    bool defending = false;
-    bool dead = false;
+    public float horizontalMove = 0f;
+    public bool crouch = false;
+    public bool jump = false;
+    public bool atack = false;
+    public bool lookFoward = true;
+    public bool defending = false;
+    public bool dead = false;
+    public bool onLand = true;
+    public bool startAtack = false;
 
     Vector3 initialPosition;
 
@@ -63,31 +83,37 @@ public class Player : MonoBehaviour
     {
         horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;   
         animator.SetFloat("Movement", horizontalMove);
+        animator.SetFloat("Health", HealthPercent);
+
+        if (horizontalMove == 0 && !atack &&  onLand && !crouch && !defending)
+        {
+            lastAction = LastAction.NUMACTIONS;
+        }
 
         if ((horizontalMove > 0.1 && lookFoward == true) || (horizontalMove < -0.1 && lookFoward == false))
         {
-            
-            
             animator.SetBool("Walk_Forward", true);
+           lastAction = LastAction.WFORWARD;
         }
         else
         {
             animator.SetBool("Walk_Forward", false);
-
         }
         if ((horizontalMove < -0.1 && lookFoward == true) || (horizontalMove > 0.1 && lookFoward == false))
         {
             animator.SetBool("Walk_Backwards", true);
+            lastAction = LastAction.WBACKWARDS;
         }
         else
         {
             animator.SetBool("Walk_Backwards", false);
-
         }
         if (Input.GetButtonDown("Jump"))
         {
             jump = true;
+            onLand = false;
             animator.SetBool("OnAir", true);
+            lastAction = LastAction.JUMP;
         }
         
         if (Input.GetButtonDown("Crouch"))
@@ -98,7 +124,12 @@ public class Player : MonoBehaviour
             {
                 defending = true;
                 animator.SetBool("Defending", true);
+                lastAction = LastAction.DEFEND;
 
+            }
+            else
+            {
+                lastAction = LastAction.CROUCH;
             }
         }
         else if (Input.GetButtonUp("Crouch"))
@@ -112,6 +143,7 @@ public class Player : MonoBehaviour
         if (Input.GetButtonDown("Atack"))
         {
             animator.SetTrigger("Atack");
+            lastAction = LastAction.ATACK;
         }
         if (Input.GetButtonDown("SpecialAtack"))
         {
@@ -119,6 +151,7 @@ public class Player : MonoBehaviour
             {
                 animator.SetTrigger("Special_Atack");
                 energy -= 100;
+                lastAction = LastAction.SATACK;
             }
         }
 
@@ -150,6 +183,8 @@ public class Player : MonoBehaviour
         if (Input.GetButtonDown("Jump2"))
         {
             jump = true;
+            onLand = false;
+
             animator.SetBool("OnAir", true);
         }
 
@@ -186,9 +221,42 @@ public class Player : MonoBehaviour
 
     }
 
+
+    public void UpdateIA(float horizontalDirection, bool atackAction)
+    {
+        horizontalMove = horizontalDirection * runSpeed;
+        animator.SetFloat("Movement", horizontalMove);
+
+        if ((horizontalMove < -0.1 && lookFoward == true) || (horizontalMove > 0.1 && lookFoward == false))
+        {
+            animator.SetBool("Walk_Forward", true);
+        }
+        else
+        {
+            animator.SetBool("Walk_Forward", false);
+
+        }
+        if ((horizontalMove > 0.1 && lookFoward == true) || (horizontalMove < -0.1 && lookFoward == false))
+        {
+            animator.SetBool("Walk_Backwards", true);
+        }
+        else
+        {
+            animator.SetBool("Walk_Backwards", false);
+
+        }
+
+        if (atackAction)
+        {
+           
+            animator.SetTrigger("Atack");
+        }
+
+    }
+
     void Update()
     {
-        animator.SetFloat("Health", HealthPercent);
+
 
         if (oponent != null)
         {
@@ -214,12 +282,13 @@ public class Player : MonoBehaviour
     public void OnLanding()
     {
         animator.SetBool("OnAir", false);
+        onLand = true;
     }
 
     public void StartAtack()
     {
         atack = true;
-        
+        startAtack = true;
 
     }
     public void EndAtack()
@@ -231,13 +300,15 @@ public class Player : MonoBehaviour
     {
         Vector3 SphereInitialPosition;
 
-        if (spriteRendered.flipX == false)
+        if ((lookFoward == false && this.player == PlayerType.HUMAN) || (lookFoward == true && (this.player == PlayerType.HUMAN2 || this.player == PlayerType.AI)))
         {
             SphereInitialPosition = new Vector3(this.transform.position.x -1, this.transform.position.y, 0);
+            throwForward = false;
         }
         else
         {
             SphereInitialPosition = new Vector3(this.transform.position.x , this.transform.position.y, 0);
+            throwForward = true;
    
         }
         EnergySphere clone = EnergySphere.Instantiate(
@@ -321,29 +392,6 @@ public class Player : MonoBehaviour
     }
 
 
-    public float HealthPercent
-    {
-        get
-        {
-            return health / MAX_HEALTH;
-        }
-    }
-
-    public float EnergyPercent
-    {
-        get
-        {
-            return energy / MAX_ENERGY;
-        }
-    }
-
-    public float ShieldPercent
-    {
-        get
-        {
-            return shield / MAX_SHIELD;
-        }
-    }
 
     public void FlipSprite(int state) //0 normal 1 inverse
     {
@@ -391,17 +439,10 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         //Move our character
-        if (player == PlayerType.HUMAN)
-        {
+      
             controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump, atack);
             jump = false;
-        }
-
-        if (player == PlayerType.HUMAN2)
-        {
-            controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump, atack);
-            jump = false;
-        }
+       
     }
     public Rigidbody2D Body
     {
@@ -431,5 +472,49 @@ public class Player : MonoBehaviour
         dead = false;
         animator.SetTrigger("Spawn");
 
+    }
+    public void Heal()
+    {
+        health = MAX_HEALTH;
+
+    }
+
+    public float[] CurrentAction
+    {
+        get
+        {
+            for (int ca = 0; ca < (int)LastAction.NUMACTIONS; ca++)
+            {
+                currentAction[ca] = (int)lastAction == ca ? 1.0f : 0.0f;
+            }
+              
+            return currentAction;
+        }
+    }
+
+
+    public float HealthPercent
+    {
+        get
+        {
+
+            return health / MAX_HEALTH;
+        }
+    }
+
+    public float EnergyPercent
+    {
+        get
+        {
+            return energy / MAX_ENERGY;
+        }
+    }
+
+    public float ShieldPercent
+    {
+        get
+        {
+            return shield / MAX_SHIELD;
+        }
     }
 }

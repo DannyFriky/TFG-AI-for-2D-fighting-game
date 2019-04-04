@@ -49,19 +49,19 @@ public class BattleController : MonoBehaviour
             player2.FlipSprite(0);
         }
 
-        if (player1.HealthPercent == 0)
-        {
-            banner.ShowYouDie();
-        }
+        
         //Will restar the battle forever until training its done
         if(timeLeft == 0 || player1.HealthPercent == 0 || player2.HealthPercent == 0)
         {
-          
+            if (player1.HealthPercent == 0)
+            {
+                banner.ShowYouDie();
+            }
             RestartGame();
         }
     }
 
-    private void RestartGame()
+    public void RestartGame()
     {
        
 

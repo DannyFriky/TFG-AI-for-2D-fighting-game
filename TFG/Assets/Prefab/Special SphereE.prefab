@@ -15,8 +15,8 @@ GameObject:
   - component: {fileID: 14347953894950121}
   - component: {fileID: 14347953894950120}
   m_Layer: 0
-  m_Name: Special Sphere
-  m_TagString: Untagged
+  m_Name: Special SphereE
+  m_TagString: EnergySphereP2
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -161,6 +161,7 @@ MonoBehaviour:
   particleSystem: {fileID: 14347954155089128}
   movementSpeed: 200
   damage: 30
+  lifeTime: 3
 --- !u!1 &14347954155089141
 GameObject:
   m_ObjectHideFlags: 0

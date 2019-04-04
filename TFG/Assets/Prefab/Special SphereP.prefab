@@ -12,6 +12,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Special SphereP
       objectReference: {fileID: 0}
+    - target: {fileID: 14347953894950133, guid: d874833aaf1c04d48b35dd117bdad835,
+        type: 3}
+      propertyPath: m_TagString
+      value: EnergySphereP1
+      objectReference: {fileID: 0}
     - target: {fileID: 14347953894950120, guid: d874833aaf1c04d48b35dd117bdad835,
         type: 3}
       propertyPath: particleSystem

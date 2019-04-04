@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class EnergySphere : MonoBehaviour
 {
     public Player caster;
@@ -18,13 +19,15 @@ public class EnergySphere : MonoBehaviour
         creationTime = Time.time;
         body = GetComponent<Rigidbody2D>();
         float speed;
-        if(caster.spriteRendered.flipX == true)
+        if(caster.throwForward == true)
         {
+
             speed = movementSpeed;
 
         }
         else
         {
+
             speed = movementSpeed * -1;
             var sh = particleSystem.shape;
             sh.position = new Vector3(0, 0, -2);

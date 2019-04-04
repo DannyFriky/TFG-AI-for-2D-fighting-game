@@ -3,7 +3,10 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Wall
+  - EnergySphereP2
+  - EnergySphereP1
   layers:
   - Default
   - TransparentFX
@@ -16,7 +19,7 @@ TagManager:
   - Player
   - Enemy
   - Ground
-  - ground
+  - Wall
   - 
   - 
   - 
