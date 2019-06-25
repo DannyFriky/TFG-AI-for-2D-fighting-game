@@ -122,7 +122,7 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0
-    functionName: StartAtack
+    functionName: StartAttack
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
@@ -136,7 +136,14 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 1.0625
-    functionName: EndAtack
+    functionName: EndAttack
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 1.0625
+    functionName: EndSpecialAttack
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

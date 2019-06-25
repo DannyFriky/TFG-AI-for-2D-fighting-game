@@ -8,68 +8,101 @@ public class CharacterAgent : Agent
     Rigidbody2D rBody;
     public BattleController battle;
     public Player character;
-    public Animator animator;
     int horizontalSignal = 0;
+    int verticalSignal = 0;
     int horizontalDirection = 0;
-    int atackSignal = 0;
-    bool atackAction;
-    RayPerception rayPer;
-    //readonly string[] detectableObjects = { "Wall", "Player", "EnergySphereP1", "EnergySphereP2" };
-    //readonly float rayDistance = 20.0f;
-   // readonly float[] rayAngles = { 1f, 45f, 90f, 135f, 180f, 110f, 70f };
+    int verticalDirection = 0;
+    int attackSignal = 0;
+    bool attackAction;
+    bool specialAction;
+    private RayPerception2D rayPer;
+    public float distanceToTarget;
+    public int difficulty; // 0 = only walk
+    public int lastTime;
+    public float lastTimehp;
+    public int nextAttack;
+     
 
     // Start is called before the first frame update
     void Start()
     {
         rBody = GetComponent<Rigidbody2D>();
-        rayPer = GetComponent<RayPerception>();
+        rayPer = GetComponent<RayPerception2D>();
         Monitor.SetActive(true);
-        
+        lastTime = battle.timeLeft;
+        lastTimehp = character.health;
+        nextAttack = lastTime;
 
     }
 
     public override void AgentReset()
     {
+        if (difficulty == 0 && character.training)
+        {
             character.oponent.transform.position = new Vector3(Random.Range(3f,17f) ,3.88f,0);
-        battle.RestartGame();
+        }
+        
+
+        // battle.RestartGame();
     }
 
     public override void CollectObservations()
     {
-        //Observations relative to the environment
-   
 
-        AddVectorObs(battle.timeLeft);
-        //No puedo usar raycasting con 2D todavia, han dicho que en unas semanas estara, ir revisando
-        //AddVectorObs(rayPer.Perceive(rayDistance, rayAngles, detectableObjects, 0.0f, 0.0f));
+        
+        float rayDistance1 = 17f;
+        float rayDistance2= 4f;
+        float[] rayAngles1 = { 180f};
+        float[] rayAngles2 = { 0f,90f,270f};
+        string[] detectableObjects = { "Wall", "Player" };
+
+        //Observations relative to the environment
+
+        AddVectorObs(rayPer.Perceive(rayDistance1, rayAngles1, detectableObjects));
+        AddVectorObs(rayPer.Perceive(rayDistance2, rayAngles2, detectableObjects));
 
         //Observations relative to own infirmation
         AddVectorObs(character.transform.position);
         AddVectorObs(character.HealthPercent);
-        AddVectorObs(character.ShieldPercent);
-        AddVectorObs(character.EnergyPercent);
 
 
         //Observations relative to oponent information
         AddVectorObs(character.oponent.HealthPercent);
         AddVectorObs(character.oponent.transform.position);
-        AddVectorObs(character.oponent.ShieldPercent);
-        AddVectorObs(character.oponent.EnergyPercent);
-        AddVectorObs(character.oponent.CurrentAction);
+ 
+       
+        if (difficulty == 2 || difficulty ==4)
+        {
+            AddVectorObs(character.oponent.attack);
+            AddVectorObs(character.oponent.specialAttack);
+        }
 
 
 
     }
+
     public void Update()
     {
-        Monitor.Log("Reward", GetCumulativeReward());
-       // Debug.Log(GetCumulativeReward());
+        //Monitor.Log("Reward", GetCumulativeReward());
+      // Debug.Log(GetCumulativeReward());
 
     }
+
     public override void AgentAction(float[] vectorAction, string textAction)
     {
+
         horizontalSignal = Mathf.FloorToInt(vectorAction[0]);
-        atackSignal = Mathf.FloorToInt(vectorAction[1]);
+        verticalSignal = Mathf.FloorToInt(vectorAction[2]);
+        attackSignal = Mathf.FloorToInt(vectorAction[1]);
+
+        if (difficulty == 0)
+        {
+            verticalSignal = 0;
+            attackSignal = 0;
+        } else if (difficulty == 1 || difficulty == 2)
+        {
+            verticalSignal = 0;
+        }
         switch (horizontalSignal)
         {
             case 1:
@@ -83,52 +116,236 @@ public class CharacterAgent : Agent
                 break;
         }
 
-        switch (atackSignal)
+        switch (verticalSignal)
         {
-            case 1:
-                atackAction = true;
-                
+           case 1:
+                verticalDirection = 1;
+                break;
+            case 2:
+
+                if (difficulty > 3)
+                {
+                    if(character.oponent.attack || character.oponent.specialAttack)
+                    {
+                        verticalDirection = -1;
+
+                    }
+                } else
+                {
+                    verticalDirection = -1;
+
+                }
                 break;
             default:
-                atackAction = false;
+                verticalDirection = 0;
                 break;
         }
 
-        character.UpdateIA(horizontalDirection,atackAction);
-        vectorAction[1] = 0;// Para que cada orden de atacar solo cuente 1 vez, si quiere volver a atacar deberia volver a mandar la orden de ataque (?)
+
+        switch (attackSignal)
+        {
+
+            case 1:
+               
+                attackAction = true;
+                specialAction = false;
+
+                break;
+            case 2:
+                specialAction = true;
+                attackAction = false;
+
+                break;
+            default:
+                attackAction = false;
+                specialAction = false;
+                break;
+        }
+
+        character.UpdateIA(horizontalDirection,verticalDirection,attackAction,specialAction);
+        vectorAction[1] = 0;
 
         //rewards
-        float distanceToTarget = Vector3.Distance(character.transform.position, character.oponent.transform.position);
+        distanceToTarget = Vector3.Distance(character.transform.position, character.oponent.transform.position);
 
-        if( character.startAtack == true && distanceToTarget > 3f)
+        if (difficulty == 0)
         {
-            SetReward(-0.1f);
-            character.startAtack = false;
+            RewardByWalk();
+            RewardByTime();
+            if (distanceToTarget < 2f)
+            {
+                RewardByProximity();
+                
+            }
+        }
+        else if (difficulty == 1 || difficulty ==2)
+        {
+            RewardByWalk();
+            RewardByTime();
+            RewardByAttack();
+
+            if (difficulty == 2)
+            {
+                RewardByDodge();
+
+                if (character.training)
+                {
+                    AutoAttack();
+                }
+                
+            }
+            character.oponent.enemyAttack = false;
+            character.oponent.specialAttack = false;
+
+        }
+        else if (difficulty >= 3)
+        {
+            RewardByWalk();
+            RewardByTime();
+            RewardByAttack();
+            RewardByDodge();
+            if (character.training)
+            {
+                AutoAttack();
+            }
+
+            RewardByDefend();
+
+            character.oponent.attack = false;
+            character.oponent.specialAttack = false;
         }
 
-        if (character.oponent.HealthPercent < character.HealthPercent)
+
+
+    }
+       
+    private void RewardByWalk()
+    {
+        if ((character.lookForward == false && character.horizontalMove > 0.01 && !character.attack && !character.defending) || (character.lookForward == true && character.horizontalMove < -0.01 && !character.attack && !character.defending))
         {
-            SetReward(0.5f);
+            if(distanceToTarget > 1)
+            {
+                SetReward(0.1f);
+
+            }
+        }
+
+    }
+
+    private void RewardByProximity()
+    {
+        SetReward(0.5f);
+        Done();
+    }
+
+    private void RewardByTime()
+    {
+        if (lastTime > battle.timeLeft)
+        {
+
+            SetReward(-0.5f);
+             lastTime = battle.timeLeft; 
+            if (lastTime == 0 && character.training)
+            {
+                lastTime = 99;
+                battle.timeLeft = 99;
+                nextAttack = 99 - Random.Range(1, 2);
+                character.shield = 100;
+
+            }
+        }
+    }
+
+    private void RewardByAttack()
+    {
+
+        if (character.oponent.enemyAttack == true && distanceToTarget < 3f)
+        {
+            SetReward(0.4f);
+            if (character.training)
+            {
+                character.oponent.transform.position = new Vector3(Random.Range(3f, 17f), 3.88f, 0);
+
+            }
+
+        }
+
+        if (character.oponent.health < 50 && character.training)
+        {
+            SetReward(1.0f);
             character.oponent.Heal();
-            character.oponent.transform.position = new Vector3(Random.Range(3f, 17f), 3.88f, 0);
-
-        }
-        if ((character.lookFoward == false && character.horizontalMove > 0.01) || (character.lookFoward == true && character.horizontalMove < -0.01))
-        {
-            SetReward(0.01f);
-        }
-        if ((character.lookFoward == false && character.horizontalMove < -0.01) || (character.lookFoward == true && character.horizontalMove > 0.01))
-        {
-            SetReward(-0.01f);
-        }
-
-        if (battle.timeLeft == 1)
-        {
-           
             Done();
         }
     }
 
+    private void RewardByDodge()
+    {
+
+        if (character.oponent.attack)
+        {
+
+            if ((character.lookForward == false && character.horizontalMove < 0.01) || (character.lookForward == true && character.horizontalMove > -0.01))
+            {
+                SetReward(0.01f);
+
+            }
+            if (lastTimehp < character.health)
+            {
+                lastTimehp = character.health;
+                SetReward(-0.4f);
+            }
+            if (lastTimehp == character.health)
+            {
+                SetReward(0.01f);
+
+            }
+
+            if (character.health < 50 && character.training)
+            {
+                SetReward(-1.0f);
+                character.Heal();
+            }
+
+        }
 
 
+    }
+
+    private void AutoAttack()
+    {
+        if (battle.timeLeft == nextAttack)
+        {
+            nextAttack = battle.timeLeft - Random.Range(1, 2);
+            if (distanceToTarget < 3.0f)
+            {
+                character.oponent.ForcedAttack();
+            }
+
+            if (distanceToTarget > 6.0f)
+            {
+                character.oponent.ForcedSAttack();
+            }
+        }
+    }
+
+    private void RewardByDefend()
+    {
+        if (character.defending == true && character.oponent.attack && distanceToTarget < 3f)
+        {
+            SetReward(0.3f);
+
+        }
+
+        if (character.defending == true && character.oponent.specialAttack)
+        {
+            SetReward(0.3f);
+        }
+
+        if (character.shield == 0)
+        {
+            SetReward(0.5f);
+        }
+
+
+    }
 }

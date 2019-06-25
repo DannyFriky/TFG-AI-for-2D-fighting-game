@@ -6,11 +6,12 @@ using UnityEngine;
 public class EnergySphere : MonoBehaviour
 {
     public Player caster;
-    public new ParticleSystem particleSystem;
+    public  ParticleSystem m_particleSystem;
     public float movementSpeed = 200;
     public float damage;
     private float creationTime;
     public float lifeTime = 3;
+
 
     private Rigidbody2D body;
     // Start is called before the first frame update
@@ -29,7 +30,7 @@ public class EnergySphere : MonoBehaviour
         {
 
             speed = movementSpeed * -1;
-            var sh = particleSystem.shape;
+            var sh = m_particleSystem.shape;
             sh.position = new Vector3(0, 0, -2);
             sh.rotation = new Vector3(0, -180, 0);
         }
@@ -55,6 +56,10 @@ public class EnergySphere : MonoBehaviour
             Destroy(gameObject);
             caster.UpdateEnergy(15);
 
+        }
+        if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("EnergySphereP1") || collision.gameObject.CompareTag("EnergySphereP2"))
+        {
+            Destroy(gameObject);
         }
     }
 }

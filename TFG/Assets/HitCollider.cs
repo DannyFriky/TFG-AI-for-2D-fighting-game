@@ -6,13 +6,8 @@ public class HitCollider : MonoBehaviour
 {
     public string hitName;
     public float damage;
-
     public Player owner;
-        private void Update()
-    {
-    
 
-    }
     private void OnTriggerEnter2D(Collider2D other)
     {
    

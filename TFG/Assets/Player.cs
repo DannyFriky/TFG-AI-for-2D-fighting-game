@@ -9,20 +9,6 @@ public class Player : MonoBehaviour
         HUMAN, AI, HUMAN2
     };
 
-    public enum LastAction
-    {
-        WFORWARD,
-        WBACKWARDS,
-        JUMP,
-        CROUCH,
-        DEFEND,
-        ATACK,
-        SATACK,
-        DIE,
-        RESPAWN,
-        NUMACTIONS
-    };
-
 
 
     public static float MAX_HEALTH = 100f;
@@ -38,21 +24,20 @@ public class Player : MonoBehaviour
     public string playerName;
     public Player oponent;
     public PlayerType player;
-    public LastAction lastAction;
     public EnergySphere sphere;
     public SpriteRenderer spriteRendered;
     private Rigidbody2D myBody;
     private AudioSource audioPlayer;
-    public AudioClip atack1s;
-    public AudioClip atack2s;
-    public AudioClip atack3s;
+
+    public AudioClip attack1s;
+    public AudioClip attack2s;
+    public AudioClip attack3s;
     public AudioClip specials;
     public AudioClip dmghits;
     public AudioClip shieldhits;
     public AudioClip shieldbreaks;
     public AudioClip jumps;
     public bool throwForward;
-    public float[] currentAction = new float[(int)LastAction.NUMACTIONS];
 
 
 
@@ -62,12 +47,15 @@ public class Player : MonoBehaviour
     public float horizontalMove = 0f;
     public bool crouch = false;
     public bool jump = false;
-    public bool atack = false;
-    public bool lookFoward = true;
+    public bool attack = false;
+    public bool lookForward = true;
     public bool defending = false;
     public bool dead = false;
     public bool onLand = true;
-    public bool startAtack = false;
+    public bool enemyAttack = false;
+    public bool specialAttack = false;
+    public bool training;
+
 
     Vector3 initialPosition;
 
@@ -77,92 +65,158 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         initialPosition = this.transform.position;
         audioPlayer = GetComponent<AudioSource>();
+      
     }
 
     public void UpdateHumanInput ()
     {
-        horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;   
-        animator.SetFloat("Movement", horizontalMove);
-        animator.SetFloat("Health", HealthPercent);
+        if (!PauseMenu.GameIsPaused)
+        {
+            horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
+            animator.SetFloat("Movement", horizontalMove);
+            animator.SetFloat("Health", HealthPercent);
 
-        if (horizontalMove == 0 && !atack &&  onLand && !crouch && !defending)
-        {
-            lastAction = LastAction.NUMACTIONS;
-        }
 
-        if ((horizontalMove > 0.1 && lookFoward == true) || (horizontalMove < -0.1 && lookFoward == false))
-        {
-            animator.SetBool("Walk_Forward", true);
-           lastAction = LastAction.WFORWARD;
-        }
-        else
-        {
-            animator.SetBool("Walk_Forward", false);
-        }
-        if ((horizontalMove < -0.1 && lookFoward == true) || (horizontalMove > 0.1 && lookFoward == false))
-        {
-            animator.SetBool("Walk_Backwards", true);
-            lastAction = LastAction.WBACKWARDS;
-        }
-        else
-        {
-            animator.SetBool("Walk_Backwards", false);
-        }
-        if (Input.GetButtonDown("Jump"))
-        {
-            jump = true;
-            onLand = false;
-            animator.SetBool("OnAir", true);
-            lastAction = LastAction.JUMP;
-        }
-        
-        if (Input.GetButtonDown("Crouch"))
-        {
-            crouch = true;
-            animator.SetBool("Is_Crouching", true);
-            if (shield > 0)
+
+            if ((horizontalMove > 0.1 && lookForward == true) || (horizontalMove < -0.1 && lookForward == false))
             {
-                defending = true;
-                animator.SetBool("Defending", true);
-                lastAction = LastAction.DEFEND;
-
+                animator.SetBool("Walk_Forward", true);
             }
             else
             {
-                lastAction = LastAction.CROUCH;
+                animator.SetBool("Walk_Forward", false);
             }
-        }
-        else if (Input.GetButtonUp("Crouch"))
-        {
-            crouch = false;
-            animator.SetBool("Is_Crouching", false);
-            defending = false;
-            animator.SetBool("Defending", false);
-
-        }
-        if (Input.GetButtonDown("Atack"))
-        {
-            animator.SetTrigger("Atack");
-            lastAction = LastAction.ATACK;
-        }
-        if (Input.GetButtonDown("SpecialAtack"))
-        {
-            if (energy >= 100)
+            if ((horizontalMove < -0.1 && lookForward == true) || (horizontalMove > 0.1 && lookForward == false))
             {
-                animator.SetTrigger("Special_Atack");
-                energy -= 100;
-                lastAction = LastAction.SATACK;
+                animator.SetBool("Walk_Backwards", true);
+            }
+            else
+            {
+                animator.SetBool("Walk_Backwards", false);
+            }
+            if (Input.GetButtonDown("Jump"))
+            {
+                jump = true;
+                onLand = false;
+                animator.SetBool("OnAir", true);
+            }
+
+            if (Input.GetButtonDown("Crouch"))
+            {
+                crouch = true;
+                animator.SetBool("Is_Crouching", true);
+                if (shield > 0)
+                {
+                    defending = true;
+                    animator.SetBool("Defending", true);
+                   
+
+                }
+            }
+            else if (Input.GetButtonUp("Crouch"))
+            {
+                crouch = false;
+                animator.SetBool("Is_Crouching", false);
+                defending = false;
+                animator.SetBool("Defending", false);
+
+            }
+            if (Input.GetButtonDown("Attack"))
+            {
+                if (!specialAttack)
+                {
+                    animator.SetTrigger("Attack");
+                }
+
+            }
+            if (Input.GetButtonDown("SpecialAttack"))
+            {
+                if (energy >= 100)
+                {
+                    specialAttack = true;
+                    animator.SetTrigger("Special_Attack");
+                    energy -= 100;
+                }
             }
         }
-
+        
     } 
 
     public void UpdateHuman2Input()
     {
-        horizontalMove = Input.GetAxisRaw("Horizontal2") * runSpeed;
+        if (!PauseMenu.GameIsPaused)
+        {
+            horizontalMove = Input.GetAxisRaw("Horizontal2") * runSpeed;
+            animator.SetFloat("Movement", horizontalMove);
+
+            if ((horizontalMove < -0.1 && lookForward == true) || (horizontalMove > 0.1 && lookForward == false))
+            {
+                animator.SetBool("Walk_Forward", true);
+            }
+            else
+            {
+                animator.SetBool("Walk_Forward", false);
+
+            }
+            if ((horizontalMove > 0.1 && lookForward == true) || (horizontalMove < -0.1 && lookForward == false))
+            {
+                animator.SetBool("Walk_Backwards", true);
+            }
+            else
+            {
+                animator.SetBool("Walk_Backwards", false);
+
+            }
+            if (Input.GetButtonDown("Jump2"))
+            {
+                jump = true;
+                onLand = false;
+
+                animator.SetBool("OnAir", true);
+            }
+
+            if (Input.GetButtonDown("Crouch2"))
+            {
+                crouch = true;
+                animator.SetBool("Is_Crouching", true);
+                if (shield > 0)
+                {
+                    defending = true;
+                    animator.SetBool("DefendingH", true);
+
+                }
+            }
+            else if (Input.GetButtonUp("Crouch2"))
+            {
+                crouch = false;
+                animator.SetBool("Is_Crouching", false);
+                defending = false;
+                animator.SetBool("DefendingH", false);
+
+            }
+            if (Input.GetButtonDown("Attack2"))
+            {
+                animator.SetTrigger("Attack");
+            }
+            if (Input.GetButtonDown("SpecialAttack2"))
+            {
+                if (energy >= 100)
+                {
+                    animator.SetTrigger("Special_Attack");
+                    energy -= 100;
+                }
+            }
+        }
+    }
+
+    public void UpdateIA(int horizontalDirection,int verticalDirection, bool attackAction, bool specialAction)
+    {
+
+        horizontalMove = horizontalDirection * runSpeed;
         animator.SetFloat("Movement", horizontalMove);
 
-        if ((horizontalMove < -0.1 && lookFoward == true) || (horizontalMove > 0.1 && lookFoward == false))
+
+        if (((horizontalMove < -0.1 && lookForward == true) || (horizontalMove > 0.1 && lookForward == false)))
         {
             animator.SetBool("Walk_Forward", true);
         }
@@ -171,7 +225,7 @@ public class Player : MonoBehaviour
             animator.SetBool("Walk_Forward", false);
 
         }
-        if ((horizontalMove > 0.1 && lookFoward == true) || (horizontalMove < -0.1 && lookFoward == false))
+        if (((horizontalMove > 0.1 && lookForward == true) || (horizontalMove < -0.1 && lookForward == false)))
         {
             animator.SetBool("Walk_Backwards", true);
         }
@@ -180,81 +234,52 @@ public class Player : MonoBehaviour
             animator.SetBool("Walk_Backwards", false);
 
         }
-        if (Input.GetButtonDown("Jump2"))
-        {
-            jump = true;
-            onLand = false;
 
-            animator.SetBool("OnAir", true);
-        }
-
-        if (Input.GetButtonDown("Crouch2"))
+        if (attackAction)
         {
-            crouch = true;
-            animator.SetBool("Is_Crouching", true);
-            if (shield > 0)
+            if (!specialAttack && !defending)
             {
-                defending = true;
-                animator.SetBool("Defending", true);
-
+                animator.SetTrigger("Attack");
             }
         }
-        else if (Input.GetButtonUp("Crouch2"))
-        {
-            crouch = false;
-            animator.SetBool("Is_Crouching", false);
-            defending = false;
-            animator.SetBool("Defending", false);
 
-        }
-        if (Input.GetButtonDown("Atack2"))
+        if (specialAction)
         {
-            animator.SetTrigger("Atack");
-        }
-        if (Input.GetButtonDown("SpecialAtack2"))
-        {
-            if (energy >= 100){
-                animator.SetTrigger("Special_Atack");
+            if (energy >= 100)
+            {
+                specialAttack = true;
+                animator.SetTrigger("Special_Attack");
                 energy -= 100;
             }
         }
 
-    }
-
-
-    public void UpdateIA(float horizontalDirection, bool atackAction)
-    {
-        horizontalMove = horizontalDirection * runSpeed;
-        animator.SetFloat("Movement", horizontalMove);
-
-        if ((horizontalMove < -0.1 && lookFoward == true) || (horizontalMove > 0.1 && lookFoward == false))
+       /* if (verticalDirection == 1)
         {
-            animator.SetBool("Walk_Forward", true);
-        }
-        else
-        {
-            animator.SetBool("Walk_Forward", false);
 
-        }
-        if ((horizontalMove > 0.1 && lookFoward == true) || (horizontalMove < -0.1 && lookFoward == false))
+            jump = true;
+            onLand = false;
+
+            animator.SetBool("OnAir", true);
+        }*/
+        if (verticalDirection == -1)
         {
-            animator.SetBool("Walk_Backwards", true);
-        }
-        else
-        {
-            animator.SetBool("Walk_Backwards", false);
+
+            
+           if (shield > 0 && !defending && !specialAttack && !attack)
+           {
+                    animator.SetBool("Is_Crouching", true);
+                    animator.SetBool("Defending", true);
+
+           }
+        
 
         }
 
-        if (atackAction)
-        {
-           
-            animator.SetTrigger("Atack");
-        }
+
 
     }
 
-    void Update()
+    public void Update()
     {
 
 
@@ -285,29 +310,40 @@ public class Player : MonoBehaviour
         onLand = true;
     }
 
-    public void StartAtack()
+    public void StartAttack()
     {
-        atack = true;
-        startAtack = true;
+        attack = true;
 
     }
-    public void EndAtack()
+
+    public void EndAttack()
     {
-        atack = false;
+        attack = false;
+    }
+
+    public void StartSpecialAttack()
+    {
+        attack = true;
+
+    }
+
+    public void EndSpecialAttack()
+    {
+        specialAttack = false;
     }
 
     public void ThrowSphere()
     {
         Vector3 SphereInitialPosition;
 
-        if ((lookFoward == false && this.player == PlayerType.HUMAN) || (lookFoward == true && (this.player == PlayerType.HUMAN2 || this.player == PlayerType.AI)))
+        if ((lookForward == false && this.player == PlayerType.HUMAN) || (lookForward == true && (this.player == PlayerType.HUMAN2 || this.player == PlayerType.AI)))
         {
             SphereInitialPosition = new Vector3(this.transform.position.x -1, this.transform.position.y, 0);
             throwForward = false;
         }
         else
         {
-            SphereInitialPosition = new Vector3(this.transform.position.x , this.transform.position.y, 0);
+            SphereInitialPosition = new Vector3(this.transform.position.x +1, this.transform.position.y, 0);
             throwForward = true;
    
         }
@@ -318,6 +354,29 @@ public class Player : MonoBehaviour
         clone.caster = this;
     }
 
+    public void StartDefense()
+    {
+        
+
+        crouch = true;
+        defending = true;
+    }
+
+    public void EndDefense()
+    {
+      
+        if (player == PlayerType.AI)
+        {
+            crouch = false;
+
+            defending = false;
+            animator.SetBool("Is_Crouching", false);
+            animator.SetBool("Defending", false);
+        }
+
+
+    }
+    
     public void DamageReceived(float damage)
     {
         if (dead == false)
@@ -354,9 +413,9 @@ public class Player : MonoBehaviour
                 {
                     health -= damage;
 
-                    if (health == 0)
+                    if (health == 0 && !training)
                     {
-                        //oponent.GetKill();
+                        
                         animator.SetTrigger("Death");
                         dead = true;
                         this.transform.position = new Vector3(10, 13, 0);
@@ -365,15 +424,20 @@ public class Player : MonoBehaviour
                 }
                 else
                 {
-                    health = 0;
-                    // oponent.GetKill();
+                    if (!training)
+                    {
+                        health = 0;
 
-                    animator.SetTrigger("Death");
-                    dead = true;
-                    this.transform.position = new Vector3(10, 13, 0);
+                        animator.SetTrigger("Death");
+                        dead = true;
+                        this.transform.position = new Vector3(10, 13, 0);
+                    }
+                    
 
                 }
             }
+
+            enemyAttack = true;
 
 
         }
@@ -391,35 +455,35 @@ public class Player : MonoBehaviour
         }
     }
 
-
-
     public void FlipSprite(int state) //0 normal 1 inverse
     {
         if (state == 0 )
         {
             this.transform.rotation = Quaternion.Euler(0,0,0);
-            lookFoward = true;
+            lookForward = true;
         }
         else
         {
             this.transform.rotation = Quaternion.Euler(0, 180, 0);
-            lookFoward = false;
+            lookForward = false;
         }
     }
 
-    public void Atack1Sound()
+    public void Attack1Sound()
     {
-        GameUtils.PlaySound(atack1s, audioPlayer);
+        GameUtils.PlaySound(attack1s, audioPlayer);
 
     }
-    public void Atack2Sound()
+
+    public void Attack2Sound()
     {
-        GameUtils.PlaySound(atack2s, audioPlayer);
+        GameUtils.PlaySound(attack2s, audioPlayer);
 
     }
-    public void Atack3Sound()
+
+    public void Attack3Sound()
     {
-        GameUtils.PlaySound(atack3s, audioPlayer);
+        GameUtils.PlaySound(attack3s, audioPlayer);
 
     }
 
@@ -435,15 +499,15 @@ public class Player : MonoBehaviour
 
     }
 
-
     private void FixedUpdate()
     {
         //Move our character
       
-            controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump, atack);
+            controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump, attack);
             jump = false;
        
     }
+
     public Rigidbody2D Body
     {
         get
@@ -460,39 +524,29 @@ public class Player : MonoBehaviour
     public void Restart()
     {
         this.transform.position = initialPosition;
+        animator.SetTrigger("Spawn");
+        dead = false;
+
         health = MAX_HEALTH;
         energy = 0;
         shield = MAX_SHIELD;
         horizontalMove = 0f;
         crouch = false;
         jump = false;
-        atack = false;
-        lookFoward = true;
+        attack = false;
+        specialAttack = false;
+        lookForward = true;
+        enemyAttack = false;
         defending = false;
-        dead = false;
-        animator.SetTrigger("Spawn");
 
     }
+
     public void Heal()
     {
         health = MAX_HEALTH;
 
     }
-
-    public float[] CurrentAction
-    {
-        get
-        {
-            for (int ca = 0; ca < (int)LastAction.NUMACTIONS; ca++)
-            {
-                currentAction[ca] = (int)lastAction == ca ? 1.0f : 0.0f;
-            }
-              
-            return currentAction;
-        }
-    }
-
-
+       
     public float HealthPercent
     {
         get
@@ -517,4 +571,21 @@ public class Player : MonoBehaviour
             return shield / MAX_SHIELD;
         }
     }
-}
+
+    public void ForcedAttack()
+    {
+        animator.SetTrigger("Attack");
+    }
+
+    public void ForcedSAttack()
+    {
+        if (energy >= 100)
+        {
+            specialAttack = true;
+            animator.SetTrigger("Special_Attack");
+            energy -= 100;
+        }
+
+    }
+
+    }

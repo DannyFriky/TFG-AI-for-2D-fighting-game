@@ -14,13 +14,23 @@ public class BannerController : MonoBehaviour
     }
 
 
-    public void ShowYouDie()
+    public void ShowYouDied()
     {
-        animator.SetTrigger("YouDie");
+        animator.SetTrigger("YouDied");
     }
-    // Update is called once per frame
-    void Update()
+
+    public void ShowYouWin()
     {
-        
+        animator.SetTrigger("YouWin");
+    }
+
+    public void ShowP1Win()
+    {
+        animator.SetTrigger("P1Win");
+    }
+
+    public void ShowP2Win()
+    {
+        animator.SetTrigger("P2Win");
     }
 }

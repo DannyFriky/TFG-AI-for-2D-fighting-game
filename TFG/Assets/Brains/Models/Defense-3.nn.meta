@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: dbcf95ef49b65754085f97acd12ee9e4
+ScriptedImporter:
+  fileIDToRecycleName:
+    11400000: Assets/Brains/Models/Defense-3.nn
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 83221ad3db87f4b3b91b041047cb2bc5, type: 3}

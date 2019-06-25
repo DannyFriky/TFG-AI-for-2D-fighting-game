@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: aa22eb10d16f0b848b723dc537130211
+ScriptedImporter:
+  fileIDToRecycleName:
+    11400000: Assets/Brains/ane12.nn
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 83221ad3db87f4b3b91b041047cb2bc5, type: 3}
