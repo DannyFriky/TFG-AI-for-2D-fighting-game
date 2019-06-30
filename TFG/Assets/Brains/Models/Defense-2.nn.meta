@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 57204608aa4a82e4092c6ae5c604ec56
+guid: 629336587fbff0f448ff85a020e99609
 ScriptedImporter:
   fileIDToRecycleName:
-    11400002: Assets/Brains/Defense-2.nn
+    11400002: Assets/Brains/Models/Defense-2.nn
   externalObjects: {}
   userData: 
   assetBundleName: 

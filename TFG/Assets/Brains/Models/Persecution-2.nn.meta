@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: d525a0c6c7f2a3c4198276532c121c4d
+guid: 37dacc85d24fbc142bf81b08d66a22e9
 ScriptedImporter:
   fileIDToRecycleName:
-    11400000: Assets/Brains/Persecution-2.nn
+    11400000: Assets/Brains/Models/Persecution-2.nn
   externalObjects: {}
   userData: 
   assetBundleName: 

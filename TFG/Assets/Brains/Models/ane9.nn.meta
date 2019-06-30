@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 4e440a6b3cf9b854ea50dc257b45276f
+guid: 8da6c3b54020e434bab8918e87d55b3b
 ScriptedImporter:
   fileIDToRecycleName:
-    11400000: Assets/Brains/ane9.nn
+    11400000: Assets/Brains/Models/ane9.nn
   externalObjects: {}
   userData: 
   assetBundleName: 

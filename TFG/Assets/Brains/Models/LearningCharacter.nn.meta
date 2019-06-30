@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 3eb88450a90f3b044a7d77a21321781f
+guid: 9269391ec37fd894ebe04ae020dca9c3
 ScriptedImporter:
   fileIDToRecycleName:
-    11400000: Assets/Brains/LearningCharacter.nn
+    11400000: Assets/Brains/Models/LearningCharacter.nn
   externalObjects: {}
   userData: 
   assetBundleName: 

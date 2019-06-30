@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: b2b9656359306b546811101d83d52c61
+guid: cfbfbf9de4d29a64ab6c8b56fa461bcc
 ScriptedImporter:
   fileIDToRecycleName:
-    11400000: Assets/Brains/wre1.nn
+    11400000: Assets/Brains/Models/wre1.nn
   externalObjects: {}
   userData: 
   assetBundleName: 

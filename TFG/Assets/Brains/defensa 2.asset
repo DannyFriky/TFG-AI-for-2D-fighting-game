@@ -10,17 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b23992c8eb17439887f5e944bf04a40, type: 3}
-  m_Name: Attack-1
+  m_Name: defensa 2
   m_EditorClassIdentifier: 
   brainParameters:
-    vectorObservationSize: 24
+    vectorObservationSize: 1
     numStackedVectorObservations: 1
-    vectorActionSize: 030000000300000003000000
+    vectorActionSize: 01000000
     cameraResolutions: []
     vectorActionDescriptions:
     - 
-    - 
-    - 
     vectorActionSpaceType: 0
-  model: {fileID: 11400002, guid: 5f2e685f8131c7b41b09c8a24107de37, type: 3}
+  model: {fileID: 11400002, guid: 629336587fbff0f448ff85a020e99609, type: 3}
   inferenceDevice: 0
